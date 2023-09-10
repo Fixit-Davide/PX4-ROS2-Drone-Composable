@@ -24,7 +24,6 @@ namespace px4_autonav{
   DronePose::DronePose(const rclcpp::NodeOptions & options)
   : Node("drone_pose", options) {
     // topics:
-    RCLCPP_INFO(this->get_logger(), "ALL GOOD");
     rmw_qos_profile_t qos = rmw_qos_profile_sensor_data;
     vehicle_attitude_sub = std::make_shared<message_filters::Subscriber<px4_msgs::msg::VehicleAttitude>>(
                           this,
@@ -37,7 +36,7 @@ namespace px4_autonav{
     vehicle_path_pub_ = create_publisher<nav_msgs::msg::Path>("/vehicle_path", 10);
     vehicle_pose_pub_ = create_publisher<geometry_msgs::msg::PoseStamped>("/vehicle_pose", 10);
     vehicle_vel_pub_ = create_publisher<visualization_msgs::msg::Marker>("/vehicle_velocity", 10);
-
+    path_msg = std::make_shared<nav_msgs::msg::Path>();
     time_sync_ = std::make_shared<message_filters::Synchronizer<latest_policy>>(
       latest_policy(this->get_clock()),
       *vehicle_attitude_sub,
@@ -65,7 +64,6 @@ void DronePose::position_cb(
   pose_msg.pose.position.y = -msg_loc_pos->y;
   pose_msg.pose.position.z = -msg_loc_pos->z;
   vehicle_pose_pub_->publish(std::move(pose_msg));
-
   arrow_velocity_msg.action = 0;
   arrow_velocity_msg.header.frame_id = "map";
   arrow_velocity_msg.header.stamp = time;
@@ -90,7 +88,7 @@ void DronePose::position_cb(
   vehicle_vel_pub_->publish(std::move(arrow_velocity_msg));
 
   path_msg->header = pose_msg.header;
-  path_msg->poses.push_back(std::move(pose_msg));
+  path_msg->poses.push_back(pose_msg);
   vehicle_path_pub_->publish(*path_msg);
 
   steady_clock::time_point end = steady_clock::now();

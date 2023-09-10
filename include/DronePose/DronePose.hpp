@@ -5,7 +5,7 @@ Copyright 2023 Lance Drone Team
 #ifndef DRONE__POSE__HPP_
 #define DRONE__POSE__HPP_
 
-#include <rclcpp/node.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <rclcpp/time.hpp>
 #include "message_filters/time_synchronizer.h"
 #include "message_filters/subscriber.h"
@@ -25,7 +25,7 @@ namespace px4_autonav
 class DronePose : public rclcpp::Node {
   public:
 
-    DronePose(const rclcpp::NodeOptions & options);
+    explicit DronePose(const rclcpp::NodeOptions & options);
 
     ~DronePose(){};
 
@@ -51,5 +51,12 @@ class DronePose : public rclcpp::Node {
   };
 }  // px4_autonav
 
-#endif  // DRONE__POSE__HPP_
+#include "rclcpp_components/register_node_macro.hpp"
 
+// Register the component with class_loader.
+// This acts as a sort of entry point, allowing the component to be
+// discoverable when its library is being loaded into a running process.
+// is being loaded into a running process.
+RCLCPP_COMPONENTS_REGISTER_NODE(px4_autonav::DronePose)
+
+#endif  // DRONE__POSE__HPP_
