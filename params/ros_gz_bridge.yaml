@@ -1,0 +1,29 @@
+ros_gz_bridge:
+  ros__parameters:
+  
+# Full set of configurations
+- ros_topic_name: "depth_camera"
+  gz_topic_name: "depth_camera"
+  ros_type_name: "sensor_msgs/msg/Image"
+  gz_type_name: "gz.msgs.Image"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "camera_info"
+  gz_topic_name: "camera_info"
+  ros_type_name: "sensor_msgs/msg/CameraInfo"
+  gz_type_name: "gz.msgs.CameraInfo"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "camera_pointcloud"
+  gz_topic_name: "depth_camera/points"
+  ros_type_name: "sensor_msgs/msg/PointCloud2"
+  gz_type_name: "gz.msgs.PointCloudPacked"
+  direction: GZ_TO_ROS
+
+# x500_depth_0/OakD-Lite/base_link/StereoOV7251 frame_ID for the camera
+# x500_depth_0/base_link/
+# - ros_topic_name: "camera_pose"
+#   gz_topic_name: "gui/camera/pose"
+#   ros_type_name: "geometry_msgs/msg/Pose"
+#   gz_type_name: "gz.msgs.Pose"
+#   direction: GZ_TO_ROS

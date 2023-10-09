@@ -1,6 +1,0 @@
-depth_to_cloud:
-  ros__parameters:
-    use_sim_time: true
-    source_topic: /camera/depth_image
-    cam_info_topic: /camera/camera_info
-    dest_topic: /point_cloud_from_depth
