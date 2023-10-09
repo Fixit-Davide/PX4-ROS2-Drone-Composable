@@ -43,6 +43,7 @@ namespace px4_autonav{
       *vehicle_local_pos_sub
     );
     time_sync_->registerCallback(std::bind(&DronePose::position_cb, this, _1, _2));
+    tf_static_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
     RCLCPP_INFO(this->get_logger(), "Init good.");
   }
 
@@ -91,10 +92,23 @@ void DronePose::position_cb(
   path_msg->poses.push_back(pose_msg);
   vehicle_path_pub_->publish(*path_msg);
 
+  // tf broadcaster: base_link of the drone
+  geometry_msgs::msg::TransformStamped tf;
+  tf.header.stamp = time;
+  tf.header.frame_id = "map";
+  tf.child_frame_id = "x500_depth_0/base_link";
+  tf.transform.translation.x = msg_loc_pos->x;
+  tf.transform.translation.y = -msg_loc_pos->y;
+  tf.transform.translation.z = -msg_loc_pos->z;
+  tf.transform.rotation.x = msg_att->q[1];
+  tf.transform.rotation.y = -msg_att->q[2];
+  tf.transform.rotation.z = -msg_att->q[3];
+  tf.transform.rotation.w = msg_att->q[0];
+  tf_static_broadcaster_->sendTransform(tf);
   steady_clock::time_point end = steady_clock::now();
-  RCLCPP_INFO(
-    get_logger(), "[Time passed] = %ld [ms]",
-    duration_cast<milliseconds>(end - begin).count());
+  // RCLCPP_INFO(
+  //   get_logger(), "[Time passed] = %ld [ms]",
+  //   duration_cast<milliseconds>(end - begin).count());
 }
 
 }  // px4_autonav

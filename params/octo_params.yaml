@@ -1,0 +1,35 @@
+octomap:
+  ros__parameters:
+    frame_id: "map"
+    base_frame_id: "base_link"
+    use_height_map: false
+    colored_map: false
+    color_factor: 0.5
+    point_cloud_min_x: 
+    point_cloud_max_x:
+    point_cloud_min_y:
+    point_cloud_max_y:
+    point_cloud_min_z:
+    point_cloud_max_z:
+    occupancy_min_z:
+    occupancy_max_z:
+    min_x_size:
+    min_y_size:
+    filter_speckles: false
+    filter_ground_plane: true
+    ground_filter:
+      distance:
+      angle:
+      plane_distance:
+    sensor_model:
+      max_range:
+      hit:
+      miss:
+      min:
+      max:
+    res: 0.5
+    compress_map:
+    incemental_2D_projection: false
+    max_depth:
+    publish_free_space: true
+    latch:

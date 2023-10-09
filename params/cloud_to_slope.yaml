@@ -1,0 +1,7 @@
+cloud_to_slope:
+  ros__parameters:
+    cloud_topic: /normals
+    slope_topic: /slope
+    grid_xy_resolution: 0.05 #m
+    max_slope: 10.0 #deg
+    map_frame: map

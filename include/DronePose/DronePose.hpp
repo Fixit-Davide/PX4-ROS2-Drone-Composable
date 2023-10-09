@@ -7,6 +7,7 @@ Copyright 2023 Lance Drone Team
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/time.hpp>
+#include <tf2_ros/transform_broadcaster.h>
 #include "message_filters/time_synchronizer.h"
 #include "message_filters/subscriber.h"
 #include "message_filters/sync_policies/latest_time.h"
@@ -16,6 +17,7 @@ Copyright 2023 Lance Drone Team
 #include <px4_msgs/msg/vehicle_attitude.hpp>
 // ROS2 msgs:
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/transform_stamped.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include "visualization_msgs/msg/marker.hpp"
 
@@ -39,6 +41,7 @@ class DronePose : public rclcpp::Node {
 
     std::shared_ptr<message_filters::Subscriber<px4_msgs::msg::VehicleAttitude>> vehicle_attitude_sub;
     std::shared_ptr<message_filters::Subscriber<px4_msgs::msg::VehicleLocalPosition>> vehicle_local_pos_sub;
+    std::shared_ptr<tf2_ros::TransformBroadcaster> tf_static_broadcaster_;
 
     rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr vehicle_path_pub_;
     rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr vehicle_pose_pub_;

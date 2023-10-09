@@ -28,13 +28,15 @@ find_package(visualization_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(px4_msgs REQUIRED)
 find_package(message_filters REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2 REQUIRED)
 
 include_directories(
   include
 )
 
 add_library(drone_pose SHARED src/DronePose.cpp)
-ament_target_dependencies(drone_pose rclcpp rcutils rclcpp_components nav_msgs visualization_msgs geometry_msgs message_filters px4_msgs)
+ament_target_dependencies(drone_pose rclcpp rcutils rclcpp_components nav_msgs visualization_msgs geometry_msgs message_filters px4_msgs tf2_ros tf2)
 
 rclcpp_components_register_node(
   drone_pose
