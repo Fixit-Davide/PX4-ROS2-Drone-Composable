@@ -8,6 +8,8 @@ Copyright 2023 Lance Drone Team
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/time.hpp>
 #include <tf2_ros/transform_broadcaster.h>
+#include <tf2_ros/static_transform_broadcaster.h>
+
 #include "message_filters/time_synchronizer.h"
 #include "message_filters/subscriber.h"
 #include "message_filters/sync_policies/latest_time.h"
@@ -34,14 +36,17 @@ class DronePose : public rclcpp::Node {
   private:
 
     std::shared_ptr<nav_msgs::msg::Path> path_msg;
-
+    bool pub_vel, pub_path, pub_pose;
+    std::string base_frame, child_frame;
+  
     using latest_policy = message_filters::sync_policies::LatestTime<px4_msgs::msg::VehicleAttitude,
       px4_msgs::msg::VehicleLocalPosition>;
     std::shared_ptr<message_filters::Synchronizer<latest_policy>> time_sync_;
 
     std::shared_ptr<message_filters::Subscriber<px4_msgs::msg::VehicleAttitude>> vehicle_attitude_sub;
     std::shared_ptr<message_filters::Subscriber<px4_msgs::msg::VehicleLocalPosition>> vehicle_local_pos_sub;
-    std::shared_ptr<tf2_ros::TransformBroadcaster> tf_static_broadcaster_;
+    std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+
 
     rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr vehicle_path_pub_;
     rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr vehicle_pose_pub_;

@@ -23,6 +23,12 @@ namespace px4_autonav{
 
   DronePose::DronePose(const rclcpp::NodeOptions & options)
   : Node("drone_pose", options) {
+    // parameters:
+    base_frame = declare_parameter<std::string>("base_frame", "/map");
+    child_frame = declare_parameter<std::string>("child_frame", "/base_link");
+    pub_pose = declare_parameter<bool>("pub.pose", false);
+    pub_vel = declare_parameter<bool>("pub.vel", false);
+    pub_path = declare_parameter<bool>("pub.path", false);
     // topics:
     rmw_qos_profile_t qos = rmw_qos_profile_sensor_data;
     vehicle_attitude_sub = std::make_shared<message_filters::Subscriber<px4_msgs::msg::VehicleAttitude>>(
@@ -43,7 +49,8 @@ namespace px4_autonav{
       *vehicle_local_pos_sub
     );
     time_sync_->registerCallback(std::bind(&DronePose::position_cb, this, _1, _2));
-    tf_static_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+    tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+
     RCLCPP_INFO(this->get_logger(), "Init good.");
   }
 
@@ -55,7 +62,8 @@ void DronePose::position_cb(
   geometry_msgs::msg::PoseStamped pose_msg;
   visualization_msgs::msg::Marker arrow_velocity_msg;
   rclcpp::Time time = get_clock()->now();
-  pose_msg.header.frame_id = "map";
+
+  pose_msg.header.frame_id = base_frame;
   pose_msg.header.stamp = time;
   pose_msg.pose.orientation.w = msg_att->q[0];
   pose_msg.pose.orientation.x = msg_att->q[1];
@@ -65,8 +73,9 @@ void DronePose::position_cb(
   pose_msg.pose.position.y = -msg_loc_pos->y;
   pose_msg.pose.position.z = -msg_loc_pos->z;
   vehicle_pose_pub_->publish(std::move(pose_msg));
+
   arrow_velocity_msg.action = 0;
-  arrow_velocity_msg.header.frame_id = "map";
+  arrow_velocity_msg.header.frame_id = base_frame;
   arrow_velocity_msg.header.stamp = time;
   arrow_velocity_msg.ns = "arrow";
   arrow_velocity_msg.type = 0;
@@ -95,8 +104,8 @@ void DronePose::position_cb(
   // tf broadcaster: base_link of the drone
   geometry_msgs::msg::TransformStamped tf;
   tf.header.stamp = time;
-  tf.header.frame_id = "map";
-  tf.child_frame_id = "x500_depth_0/base_link";
+  tf.header.frame_id = base_frame;
+  tf.child_frame_id = child_frame;
   tf.transform.translation.x = msg_loc_pos->x;
   tf.transform.translation.y = -msg_loc_pos->y;
   tf.transform.translation.z = -msg_loc_pos->z;
@@ -104,8 +113,8 @@ void DronePose::position_cb(
   tf.transform.rotation.y = -msg_att->q[2];
   tf.transform.rotation.z = -msg_att->q[3];
   tf.transform.rotation.w = msg_att->q[0];
-  tf_static_broadcaster_->sendTransform(tf);
-  steady_clock::time_point end = steady_clock::now();
+  tf_broadcaster_->sendTransform(tf);
+  // steady_clock::time_point end = steady_clock::now();
   // RCLCPP_INFO(
   //   get_logger(), "[Time passed] = %ld [ms]",
   //   duration_cast<milliseconds>(end - begin).count());
