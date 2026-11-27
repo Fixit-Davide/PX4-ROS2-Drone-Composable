@@ -32,6 +32,8 @@ class DronePose : public rclcpp::Node {
 
     std::shared_ptr<nav_msgs::msg::Path> path_msg;
     bool pub_vel, pub_path, pub_pose;
+    double path_min_dist;
+    std::size_t path_max_poses;
     std::string base_frame, child_frame;
 
     std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;

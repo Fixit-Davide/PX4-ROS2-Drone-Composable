@@ -30,6 +30,8 @@ namespace px4_autonav{
     pub_pose = declare_parameter<bool>("pub.pose", false);
     pub_vel = declare_parameter<bool>("pub.vel", false);
     pub_path = declare_parameter<bool>("pub.path", false);
+    path_min_dist = declare_parameter<double>("path.min_dist", 0.1);
+    path_max_poses = static_cast<std::size_t>(declare_parameter<int>("path.max_poses", 2000));
     // topics:
     auto qos = rclcpp::QoS(rclcpp::KeepLast(5), rmw_qos_profile_sensor_data);
     vehicle_odom_sub_ = create_subscription<VehicleOdometry>(
@@ -88,9 +90,24 @@ void DronePose::position_cb(
     vehicle_vel_pub_->publish(std::move(arrow_velocity_msg));
   }
   if(pub_path){
-    path_msg->header = pose_msg.header;
-    path_msg->poses.push_back(pose_msg);
-    vehicle_path_pub_->publish(*path_msg);
+    // Odometry arrives at ~125 Hz: only keep a pose once the drone has moved, and bound
+    // the history, otherwise the path (republished whole every time) grows without limit.
+    bool moved = path_msg->poses.empty();
+    if (!moved) {
+      const auto & last = path_msg->poses.back().pose.position;
+      const double dx = pose_msg.pose.position.x - last.x;
+      const double dy = pose_msg.pose.position.y - last.y;
+      const double dz = pose_msg.pose.position.z - last.z;
+      moved = dx * dx + dy * dy + dz * dz >= path_min_dist * path_min_dist;
+    }
+    if (moved) {
+      path_msg->header = pose_msg.header;
+      path_msg->poses.push_back(pose_msg);
+      if (path_msg->poses.size() > path_max_poses) {
+        path_msg->poses.erase(path_msg->poses.begin());
+      }
+      vehicle_path_pub_->publish(*path_msg);
+    }
   }
 
   // tf broadcaster: base_link of the drone
