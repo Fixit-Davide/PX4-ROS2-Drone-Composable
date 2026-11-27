@@ -36,7 +36,16 @@ include_directories(
 )
 
 add_library(drone_pose SHARED src/DronePose.cpp)
-ament_target_dependencies(drone_pose rclcpp rcutils rclcpp_components nav_msgs visualization_msgs geometry_msgs message_filters px4_msgs tf2_ros tf2)
+target_link_libraries(drone_pose
+  rclcpp::rclcpp
+  rclcpp_components::component
+  ${nav_msgs_TARGETS}
+  ${visualization_msgs_TARGETS}
+  ${geometry_msgs_TARGETS}
+  ${px4_msgs_TARGETS}
+  tf2_ros::tf2_ros
+  tf2::tf2
+)
 
 rclcpp_components_register_node(
   drone_pose
